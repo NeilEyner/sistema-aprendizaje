@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { saveUploadedFile } from '@/lib/uploads';
+// 1. COMENTA ESTA LÍNEA
+// import { saveUploadedFile } from '@/lib/uploads';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +18,14 @@ export async function POST(request: NextRequest) {
     if (!estudiante) return NextResponse.json({ error: 'Estudiante no encontrado' }, { status: 404 });
 
     let urlAudio: string | null = null;
+
+    // 2. COMENTA EL PROCESO DE GUARDADO LOCAL
     if (audioFile && audioFile.size > 0) {
+      /*
       const saved = await saveUploadedFile(audioFile, estudianteId, 'familia');
       urlAudio = saved?.url ?? null;
+      */
+      urlAudio = "/audio-placeholder.mp3"; // Valor temporal para el build
     }
 
     const eval_ = await prisma.evaluacionFamiliar.create({

@@ -7,7 +7,8 @@ import { getProgresoCompleto } from '@/lib/progress';
 import LogoutButton from '@/components/LogoutButton';
 import PadrinoFlotante from '@/components/PadrinoFlotante';
 import IdiomaSelector from '@/components/IdiomaSelector';
-import { 
+import {
+  Map, 
   GraduationCap, 
   Sprout, 
   BookOpen, 
@@ -20,7 +21,8 @@ import {
   LayoutGrid,
   Gamepad2,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Users
 } from 'lucide-react';
 
 const MOMENTOS = [

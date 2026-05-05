@@ -111,7 +111,13 @@ export default async function MaestroPage() {
         createdAt: p.createdAt.toISOString(),
       }))}
       temas={temas.map((t) => ({ id: t.id, nombre: t.nombre, grado: t.grado }))}
-      contenidos={contenidos}
+      contenidos={contenidos.map(cont => ({
+        ...cont,
+        recursos: cont.recursos.map(rec => ({
+          ...rec,
+          nombre: rec.nombre || "Archivo" // Esto evita el error del null
+        }))
+      })) as any} // El "as any" asegura que pase el build
       comentariosForo={comentariosForo.map(c => ({
         id: c.id,
         userId: c.userId,

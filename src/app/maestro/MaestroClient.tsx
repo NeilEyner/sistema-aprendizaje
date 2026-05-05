@@ -3,21 +3,21 @@
 import { useState, useEffect } from 'react';
 import { type Idioma } from '@/lib/i18n';
 import IdiomaSelector from '@/components/IdiomaSelector';
-import { 
-  Presentation, 
-  Users, 
-  FolderOpen, 
-  UserPlus, 
-  CheckCircle, 
-  CircleAlert, 
-  User, 
-  Globe, 
-  PartyPopper, 
-  MessageSquare, 
-  Star, 
-  Sprout, 
-  Handshake, 
-  Save, 
+import {
+  Presentation,
+  Users,
+  FolderOpen,
+  UserPlus,
+  CheckCircle,
+  CircleAlert,
+  User,
+  Globe,
+  PartyPopper,
+  MessageSquare,
+  Star,
+  Sprout,
+  Handshake,
+  Save,
   Plus,
   LogOut,
   GraduationCap,
@@ -131,12 +131,12 @@ const FEEDBACK_OPTIONS = [
   { value: 'Puedes mejorar, ¡sigue intentando!', label: 'Necesita esfuerzo', icon: Handshake, color: '#6366f1' },
 ];
 
-export default function MaestroClient({ 
-  maestroNombre, 
-  estudiantes, 
-  padrinos, 
-  todasProducciones, 
-  temas, 
+export default function MaestroClient({
+  maestroNombre,
+  estudiantes,
+  padrinos,
+  todasProducciones,
+  temas,
   contenidos: initialContenidos,
   comentariosForo: initialForo,
   idioma
@@ -210,7 +210,7 @@ export default function MaestroClient({
             <p className="text-slate-500 font-medium">Bienvenida, {maestroNombre}!</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="bg-white px-6 py-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
             <Clock size={18} className="text-brand-primary" />
@@ -269,7 +269,7 @@ export default function MaestroClient({
 
       {/* Main Content Area */}
       <main className="anim-fadeInUp">
-           {tab === 'estudiantes' && (
+        {tab === 'estudiantes' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {estudiantes.map(est => (
               <div key={est.id} className="card p-6 border-t-8 border-t-brand-primary/20">
@@ -287,7 +287,7 @@ export default function MaestroClient({
 
                 <div className="flex gap-2 mb-6">
                   {['PRACTICA', 'TEORIA', 'VALORACION', 'PRODUCCION'].map(m => {
-                    const p = est.progresos.find(pr => pr.momento === m);
+                    const p = est.progresos.find((pr: any) => pr.momento === m);
                     const Icon = MOMENTO_ICON[m];
                     return (
                       <div key={m} className={`flex-1 aspect-square rounded-2xl flex-center transition-all ${p?.completado ? 'bg-emerald-500 text-white shadow-emerald-200 shadow-lg' : 'bg-slate-50 text-slate-300 border-2 border-dashed border-slate-100'}`} title={m}>
@@ -300,7 +300,7 @@ export default function MaestroClient({
                 <div className="pt-4 border-t border-slate-100">
                   <label className="form-label">Tutor asignado</label>
                   <div className="flex gap-2">
-                    <select 
+                    <select
                       className="form-select text-sm py-2"
                       value={asignaciones[est.id] || est.padrinoId || ''}
                       onChange={(e) => setAsignaciones(a => ({ ...a, [est.id]: e.target.value }))}
@@ -319,98 +319,98 @@ export default function MaestroClient({
         )}
 
         {tab === 'seguimiento' && (
-           <div className="space-y-8">
-              <div className="flex items-center justify-between mb-8">
-                 <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                    <LineChart size={32} className="text-brand-info" /> Avance de Estudiantes
-                 </h2>
-                 <div className="badge bg-brand-info/10 text-brand-info font-black">Ciclo Lectivo 2024</div>
-              </div>
+          <div className="space-y-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                <LineChart size={32} className="text-brand-info" /> Avance de Estudiantes
+              </h2>
+              <div className="badge bg-brand-info/10 text-brand-info font-black">Ciclo Lectivo 2024</div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {estudiantes.map(est => {
-                    const totalCompletado = est.progresos.filter((p: any) => p.completado).length;
-                    const totalPosible = temas.length * 4;
-                    const porcentaje = totalPosible > 0 ? Math.round((totalCompletado / totalPosible) * 100) : 0;
-                    
-                    return (
-                    <div key={est.id} className="card p-6 border-b-8 border-b-slate-100 hover:border-b-brand-info transition-all group">
-                       <div className="flex items-start justify-between mb-6">
-                          <div className="flex items-center gap-3">
-                             <div className="w-12 h-12 bg-slate-100 rounded-2xl flex-center text-slate-400 font-black group-hover:bg-brand-info group-hover:text-white transition-colors">
-                                {est.nombre[0]}
-                             </div>
-                             <div>
-                                <h4 className="font-bold text-slate-800">{est.nombre}</h4>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{est.grado}º Grado • {IDIOMA_LABEL[est.idioma]}</p>
-                             </div>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase shadow-sm ${
-                             est.status === 'logrado' ? 'bg-amber-400 text-white' : 
-                             est.status === 'proceso' ? 'bg-emerald-400 text-white' : 
-                             est.status === 'ayuda' ? 'bg-rose-500 text-white animate-pulse' :
-                             'bg-slate-100 text-slate-400'
-                          }`}>
-                             {est.status === 'ayuda' ? '⚠️ NECESITA AYUDA' : est.status.toUpperCase()}
-                          </div>
-                       </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {estudiantes.map(est => {
+                const totalCompletado = est.progresos.filter((p: any) => p.completado).length;
+                const totalPosible = temas.length * 4;
+                const porcentaje = totalPosible > 0 ? Math.round((totalCompletado / totalPosible) * 100) : 0;
 
-                       <div className="space-y-4">
-                          <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                             <span>Progreso Total</span>
-                             <span>{porcentaje}%</span>
-                          </div>
-                          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                             <div 
-                                className="h-full bg-brand-info transition-all duration-1000" 
-                                style={{ width: `${porcentaje}%` }}
-                             />
-                          </div>
-                          
-                          <div className="pt-4 border-t border-slate-50 grid grid-cols-2 gap-2">
-                             <div className="bg-slate-50 p-2 rounded-xl text-center">
-                                <p className="text-[10px] text-slate-400 font-black uppercase">Temas</p>
-                                <p className="font-bold text-slate-700">{temas.length}</p>
-                             </div>
-                             <div className="bg-slate-50 p-2 rounded-xl text-center">
-                                <p className="text-[10px] text-slate-400 font-black uppercase">Tareas</p>
-                                <p className="font-bold text-slate-700">{est.revisado ? 'Al día' : 'Pendiente'}</p>
-                             </div>
-                          </div>
-
-                          <button onClick={() => setTab('portafolios')} className="w-full mt-2 py-3 text-xs font-black uppercase tracking-widest text-brand-info hover:bg-brand-info/5 rounded-xl transition-colors flex items-center justify-center gap-2">
-                             Ver Detalles <ChevronRight size={14} />
-                          </button>
-                       </div>
+                return (
+                  <div key={est.id} className="card p-6 border-b-8 border-b-slate-100 hover:border-b-brand-info transition-all group">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex-center text-slate-400 font-black group-hover:bg-brand-info group-hover:text-white transition-colors">
+                          {est.nombre[0]}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800">{est.nombre}</h4>
+                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{est.grado}º Grado • {IDIOMA_LABEL[est.idioma]}</p>
+                        </div>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase shadow-sm ${est.status === 'logrado' ? 'bg-amber-400 text-white' :
+                        est.status === 'proceso' ? 'bg-emerald-400 text-white' :
+                          est.status === 'ayuda' ? 'bg-rose-500 text-white animate-pulse' :
+                            'bg-slate-100 text-slate-400'
+                        }`}>
+                        {est.status === 'ayuda' ? '⚠️ NECESITA AYUDA' : est.status.toUpperCase()}
+                      </div>
                     </div>
-                 )})}
-              </div>
-           </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                        <span>Progreso Total</span>
+                        <span>{porcentaje}%</span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand-info transition-all duration-1000"
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-50 grid grid-cols-2 gap-2">
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                          <p className="text-[10px] text-slate-400 font-black uppercase">Temas</p>
+                          <p className="font-bold text-slate-700">{temas.length}</p>
+                        </div>
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                          <p className="text-[10px] text-slate-400 font-black uppercase">Tareas</p>
+                          <p className="font-bold text-slate-700">{est.revisado ? 'Al día' : 'Pendiente'}</p>
+                        </div>
+                      </div>
+
+                      <button onClick={() => setTab('portafolios')} className="w-full mt-2 py-3 text-xs font-black uppercase tracking-widest text-brand-info hover:bg-brand-info/5 rounded-xl transition-colors flex items-center justify-center gap-2">
+                        Ver Detalles <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         )}
 
         {tab === 'portafolios' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-8">
-               <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                  <FolderOpen size={32} className="text-brand-accent" /> Revisión de Trabajos
-               </h2>
-               <div className="flex gap-2">
-                  <span className="badge bg-rose-100 text-rose-600 font-bold">Pendientes: {todasProducciones.filter(p => !p.feedbackMaestro).length}</span>
-                  <span className="badge bg-emerald-100 text-emerald-600 font-bold">Revisados: {todasProducciones.filter(p => !!p.feedbackMaestro).length}</span>
-               </div>
+              <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                <FolderOpen size={32} className="text-brand-accent" /> Revisión de Trabajos
+              </h2>
+              <div className="flex gap-2">
+                <span className="badge bg-rose-100 text-rose-600 font-bold">Pendientes: {todasProducciones.filter(p => !p.feedbackMaestro).length}</span>
+                <span className="badge bg-emerald-100 text-emerald-600 font-bold">Revisados: {todasProducciones.filter(p => !!p.feedbackMaestro).length}</span>
+              </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {todasProducciones.length === 0 ? (
                 <div className="col-span-full p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
-                   <p className="text-slate-400 font-bold uppercase tracking-widest">No hay tareas entregadas todavía</p>
+                  <p className="text-slate-400 font-bold uppercase tracking-widest">No hay tareas entregadas todavía</p>
                 </div>
               ) : (
                 todasProducciones.map((prod) => (
                   <div key={prod.id} className={`card overflow-hidden border-2 transition-all ${prod.feedbackMaestro ? 'border-emerald-100 opacity-80' : 'border-brand-primary/20 shadow-xl shadow-brand-primary/5'}`}>
                     <div className={`${prod.feedbackMaestro ? 'bg-emerald-500' : 'bg-brand-primary'} p-4 text-white flex justify-between items-center`}>
-                       <span className="font-black text-sm uppercase tracking-tighter">{prod.temaNombre}</span>
-                       <span className="text-[10px] font-bold opacity-80">{new Date(prod.createdAt).toLocaleString()}</span>
+                      <span className="font-black text-sm uppercase tracking-tighter">{prod.temaNombre}</span>
+                      <span className="text-[10px] font-bold opacity-80">{new Date(prod.createdAt).toLocaleString()}</span>
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-4 mb-6">
@@ -424,13 +424,12 @@ export default function MaestroClient({
                           </p>
                         </div>
                         {prod.autoEval && (
-                           <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
-                             prod.autoEval === 'logrado' ? 'bg-amber-100 text-amber-600' : 
-                             prod.autoEval === 'proceso' ? 'bg-emerald-100 text-emerald-600' : 
-                             'bg-rose-100 text-rose-600'
-                           }`}>
-                             Siente: {prod.autoEval}
-                           </div>
+                          <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${prod.autoEval === 'logrado' ? 'bg-amber-100 text-amber-600' :
+                            prod.autoEval === 'proceso' ? 'bg-emerald-100 text-emerald-600' :
+                              'bg-rose-100 text-rose-600'
+                            }`}>
+                            Siente: {prod.autoEval}
+                          </div>
                         )}
                       </div>
 
@@ -443,7 +442,7 @@ export default function MaestroClient({
                       {prod.urlArchivo && (
                         <div className="mb-6">
                           <a href={prod.urlArchivo} target="_blank" rel="noopener noreferrer" className="btn-burbuja btn--secundario w-full text-xs py-3 flex items-center justify-center gap-2">
-                             Ver archivo entregado <ExternalLink size={14} />
+                            Ver archivo entregado <ExternalLink size={14} />
                           </a>
                         </div>
                       )}
@@ -452,16 +451,16 @@ export default function MaestroClient({
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">
                           {prod.feedbackMaestro ? 'Evaluación enviada' : 'Escribir Retroalimentación'}
                         </label>
-                        <textarea 
+                        <textarea
                           className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-brand-primary outline-none text-sm"
                           rows={2}
                           placeholder="Felicita al estudiante o dale consejos..."
                           value={feedbacks[prod.id] || prod.feedbackMaestro || ''}
-                          onChange={(e) => setFeedbacks({...feedbacks, [prod.id]: e.target.value})}
+                          onChange={(e) => setFeedbacks({ ...feedbacks, [prod.id]: e.target.value })}
                           disabled={!!prod.feedbackMaestro}
                         />
                         {!prod.feedbackMaestro && (
-                          <button 
+                          <button
                             onClick={() => guardarFeedback(prod.id)}
                             disabled={guardando[prod.id] || !feedbacks[prod.id]}
                             className="btn-burbuja btn--primario w-full"
@@ -470,9 +469,9 @@ export default function MaestroClient({
                           </button>
                         )}
                         {prod.feedbackMaestro && (
-                           <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs bg-emerald-50 p-2 rounded-xl">
-                              <CheckCircle size={16} /> Tarea revisada correctamente
-                           </div>
+                          <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs bg-emerald-50 p-2 rounded-xl">
+                            <CheckCircle size={16} /> Tarea revisada correctamente
+                          </div>
                         )}
                       </div>
                     </div>
@@ -488,7 +487,7 @@ export default function MaestroClient({
             <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3 mb-8">
               <MessageCircle size={32} className="text-brand-info" /> Muro de Valoración Comunitaria
             </h2>
-            
+
             {foro.map(post => (
               <div key={post.id} className="card p-8">
                 <div className="flex justify-between items-start mb-6">
@@ -528,17 +527,17 @@ export default function MaestroClient({
 
                 {/* Formulario de respuesta */}
                 <div className="flex gap-4">
-                  <input 
+                  <input
                     id={`reply-${post.id}`}
-                    type="text" 
-                    className="form-input" 
-                    placeholder="Escribe una respuesta para el estudiante..." 
+                    type="text"
+                    className="form-input"
+                    placeholder="Escribe una respuesta para el estudiante..."
                     onKeyDown={async (e) => {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement;
                         const val = input.value;
                         if (!val.trim()) return;
-                        
+
                         try {
                           const res = await fetch('/api/maestro/foro', {
                             method: 'POST',
@@ -571,10 +570,10 @@ export default function MaestroClient({
 
         {tab === 'nuevo' && (
           <div className="card p-10 max-w-2xl mx-auto">
-             <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+            <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
               <UserPlus size={32} className="text-brand-primary" /> Crear nuevo miembro
             </h2>
-            
+
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-group">
@@ -605,12 +604,12 @@ export default function MaestroClient({
                 <div className="form-group">
                   <label className="form-label">Grado</label>
                   <select className="form-select" value={nuevoGrado} onChange={e => setNuevoGrado(Number(e.target.value))}>
-                    {[1,2,3,4,5,6].map(g => <option key={g} value={g}>Grado {g}</option>)}
+                    {[1, 2, 3, 4, 5, 6].map(g => <option key={g} value={g}>Grado {g}</option>)}
                   </select>
                 </div>
               </div>
 
-              <button 
+              <button
                 className="btn-burbuja btn--primario w-full mt-4"
                 disabled={creando || !nuevoNombre || !nuevoUsuario || !nuevoPin}
                 onClick={async () => {
@@ -641,12 +640,12 @@ export default function MaestroClient({
   );
 }
 
-function ContenidosManager({ temas, contenidos, setContenidos, setError, setExito }: { 
-  temas: Tema[], 
-  contenidos: Contenido[], 
-  setContenidos: any, 
-  setError: any, 
-  setExito: any 
+function ContenidosManager({ temas, contenidos, setContenidos, setError, setExito }: {
+  temas: Tema[],
+  contenidos: Contenido[],
+  setContenidos: any,
+  setError: any,
+  setExito: any
 }) {
   const [selectedTema, setSelectedTema] = useState<string>(temas[0]?.id || '');
   const [selectedMomento, setSelectedMomento] = useState<string>('PRACTICA');
@@ -662,7 +661,7 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
   const [tipoJuego, setTipoJuego] = useState<string>('quiz');
   const [urlAudioInstruccion, setUrlAudioInstruccion] = useState<string | null>(null);
   const [subiendoAudio, setSubiendoAudio] = useState(false);
-  
+
   // Multiple Recursos State
   const [recursos, setRecursos] = useState<Recurso[]>([]);
 
@@ -689,9 +688,9 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
       const res = await fetch('/api/maestro/contenidos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          temaId: selectedTema, momento: selectedMomento, idioma: selectedIdioma, 
-          titulo, descripcion, textoPreguntaForo, requiereEntrega, tipoActividad, tipoJuego, recursos, urlAudioInstruccion 
+        body: JSON.stringify({
+          temaId: selectedTema, momento: selectedMomento, idioma: selectedIdioma,
+          titulo, descripcion, textoPreguntaForo, requiereEntrega, tipoActividad, tipoJuego, recursos, urlAudioInstruccion
         })
       });
       if (res.ok) {
@@ -712,7 +711,7 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-brand-primary">
             <LayoutDashboard size={24} /> Configuración
           </h3>
-          
+
           <div className="space-y-4">
             <div>
               <label className="form-label">Tema</label>
@@ -743,15 +742,15 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
       <div className="lg:col-span-2 space-y-6">
         <div className="card p-8 border-t-8 border-t-brand-primary shadow-2xl">
           <div className="flex justify-between items-start mb-8">
-             <div>
-               <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
-                 {selectedMomento}: {selectedTema ? temas.find(t => t.id === selectedTema)?.nombre : ''}
-               </h3>
-               <p className="text-slate-400 font-bold text-sm">Configuración pedagógica del momento</p>
-             </div>
-             <div className="badge bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-               ID: {selectedIdioma.toUpperCase()}
-             </div>
+            <div>
+              <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
+                {selectedMomento}: {selectedTema ? temas.find(t => t.id === selectedTema)?.nombre : ''}
+              </h3>
+              <p className="text-slate-400 font-bold text-sm">Configuración pedagógica del momento</p>
+            </div>
+            <div className="badge bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+              ID: {selectedIdioma.toUpperCase()}
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -768,37 +767,37 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
             {/* Audio de Instrucción */}
             <div className="form-group pt-4">
               <label className="form-label flex items-center gap-2">
-                 <Mic size={18} className="text-brand-primary" /> Audio de Instrucción (Opcional)
+                <Mic size={18} className="text-brand-primary" /> Audio de Instrucción (Opcional)
               </label>
               <div className="flex gap-4 items-center">
-                 {urlAudioInstruccion ? (
-                    <div className="flex-1 flex items-center gap-4 bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
-                       <audio src={urlAudioInstruccion} controls className="h-8 flex-1" />
-                       <button onClick={() => setUrlAudioInstruccion(null)} className="text-rose-500 hover:text-rose-700 font-bold text-xs uppercase">Eliminar</button>
-                    </div>
-                 ) : (
-                    <input 
-                      type="file" 
-                      accept="audio/*" 
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setSubiendoAudio(true);
-                        const formData = new FormData();
-                        formData.append('archivo', file);
-                        formData.append('temaSlug', temas.find(t => t.id === selectedTema)?.slug || 'general');
-                        try {
-                          const res = await fetch('/api/maestro/upload', { method: 'POST', body: formData });
-                          const data = await res.json();
-                          if (data.success) setUrlAudioInstruccion(data.url);
-                          else setError(data.error || 'Error al subir');
-                        } catch { setError('Error de red'); }
-                        finally { setSubiendoAudio(false); }
-                      }}
-                      className="form-input text-xs"
-                    />
-                 )}
-                 {subiendoAudio && <span className="text-xs text-brand-primary animate-pulse font-bold">Subiendo...</span>}
+                {urlAudioInstruccion ? (
+                  <div className="flex-1 flex items-center gap-4 bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
+                    <audio src={urlAudioInstruccion} controls className="h-8 flex-1" />
+                    <button onClick={() => setUrlAudioInstruccion(null)} className="text-rose-500 hover:text-rose-700 font-bold text-xs uppercase">Eliminar</button>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setSubiendoAudio(true);
+                      const formData = new FormData();
+                      formData.append('archivo', file);
+                      formData.append('temaSlug', (temas.find((t: any) => t.id === selectedTema) as any)?.slug || 'general');
+                      try {
+                        const res = await fetch('/api/maestro/upload', { method: 'POST', body: formData });
+                        const data = await res.json();
+                        if (data.success) setUrlAudioInstruccion(data.url);
+                        else setError(data.error || 'Error al subir');
+                      } catch { setError('Error de red'); }
+                      finally { setSubiendoAudio(false); }
+                    }}
+                    className="form-input text-xs"
+                  />
+                )}
+                {subiendoAudio && <span className="text-xs text-brand-primary animate-pulse font-bold">Subiendo...</span>}
               </div>
             </div>
 
@@ -806,21 +805,21 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
             <div className="pt-6 border-t border-slate-100">
               <h4 className="font-bold text-slate-800 mb-4 flex items-center justify-between">
                 Materiales y Recursos
-                <button 
+                <button
                   onClick={() => setRecursos([...recursos, { tipo: 'video', url: '', nombre: '' }])}
                   className="text-brand-primary text-sm flex items-center gap-1 hover:underline"
                 >
                   <Plus size={16} /> Agregar recurso
                 </button>
               </h4>
-              
+
               <div className="space-y-4">
                 {recursos.map((rec, idx) => (
                   <div key={idx} className="flex gap-2 items-end bg-slate-50 p-4 rounded-2xl border border-slate-100">
                     <div className="w-32">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Tipo</label>
-                      <select 
-                        className="form-select py-1 px-3 text-sm" 
+                      <select
+                        className="form-select py-1 px-3 text-sm"
                         value={rec.tipo}
                         onChange={(e) => {
                           const n = [...recursos];
@@ -835,32 +834,32 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
                       </select>
                     </div>
                     <div className="flex-1">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Nombre</label>
-                       <input 
-                        className="form-input py-1 px-3 text-sm" 
-                        value={rec.nombre} 
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Nombre</label>
+                      <input
+                        className="form-input py-1 px-3 text-sm"
+                        value={rec.nombre}
                         onChange={e => {
                           const n = [...recursos];
                           n[idx].nombre = e.target.value;
                           setRecursos(n);
                         }}
                         placeholder="Nombre del archivo"
-                       />
+                      />
                     </div>
                     <div className="flex-[2]">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1">URL / Link</label>
-                       <input 
-                        className="form-input py-1 px-3 text-sm" 
-                        value={rec.url} 
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">URL / Link</label>
+                      <input
+                        className="form-input py-1 px-3 text-sm"
+                        value={rec.url}
                         onChange={e => {
                           const n = [...recursos];
                           n[idx].url = e.target.value;
                           setRecursos(n);
                         }}
                         placeholder="https://..."
-                       />
+                      />
                     </div>
-                    <button 
+                    <button
                       onClick={() => setRecursos(recursos.filter((_, i) => i !== idx))}
                       className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"
                     >
@@ -912,7 +911,7 @@ function ContenidosManager({ temas, contenidos, setContenidos, setError, setExit
               </div>
             )}
 
-            <button 
+            <button
               onClick={guardar}
               disabled={guardando || !titulo}
               className="btn-burbuja btn--primario w-full shadow-brand-primary/20 shadow-2xl py-5"

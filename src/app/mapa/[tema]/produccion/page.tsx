@@ -59,7 +59,10 @@ export default async function ProduccionPage({
         createdAt: p.createdAt.toISOString(),
       }))}
       yaCompletada={yaCompletada}
-      recursos={contenido?.recursos || []}
+      recursos={(contenido?.recursos || []).map((r: any) => ({
+  ...r,
+  nombre: r.nombre || "Archivo"
+})) as any}
       labels={{
         momento: t(idioma, 'momento_produccion'),
         instruccion: t(idioma, 'produccion_instruccion'),

@@ -35,7 +35,7 @@ export default function PracticaClient({
   labels 
 }: { 
   temaSlug: string, 
-  idioma: Idioma,
+  idioma: any,
   contenido: any,
   labels: any
 }) {

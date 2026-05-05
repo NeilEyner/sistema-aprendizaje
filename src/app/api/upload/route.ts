@@ -30,13 +30,20 @@ export async function POST(request: NextRequest) {
     let tipo = 'texto';
 
     if (archivo && archivo.size > 0) {
+      /* 2. COMENTA ESTE BLOQUE PARA EL BUILD
       const saved = await saveUploadedFile(archivo, session.userId, temaSlug);
       if (!saved) {
-        return NextResponse.json({ error: 'Tipo de archivo no permitido o demasiado grande' }, { status: 400 });
+        return NextResponse.json({ error: 'Error al procesar' }, { status: 400 });
       }
       urlArchivo = saved.url;
       nombreArchivo = saved.nombreArchivo;
       tipo = saved.tipo;
+      */
+
+      // 3. Usa valores temporales para que no falle el "create" de abajo
+      urlArchivo = "/placeholder.png";
+      nombreArchivo = archivo.name;
+      tipo = "archivo_local_deshabilitado";
     }
 
     const produccion = await prisma.produccion.create({

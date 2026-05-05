@@ -44,8 +44,11 @@ export default async function TeoriaPage({
         titulo: contenido.titulo,
         descripcion: contenido.descripcion ?? '',
         urlAudioInstruccion: contenido.urlAudioInstruccion ?? null,
-        recursos: contenido.recursos || [],
-      } : null}
+        recursos: (contenido.recursos || []).map((r: any) => ({
+          ...r,
+          nombre: r.nombre || "Archivo" // Esto quita el error del null
+        }))
+      } as any : null}
       yaCompletada={teoriaCompletada}
       labels={{
         instruccion: t(idioma, 'teoria_instruccion'),

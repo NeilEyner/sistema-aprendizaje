@@ -1,22 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, Suspense } from 'react'; // Agregamos Suspense
 import { useSearchParams } from 'next/navigation';
-import { 
-  Users, 
-  Star, 
-  Mic, 
-  Music, 
-  CircleAlert, 
-  Send, 
-  CheckCircle, 
+import {
+  Users,
+  Star,
+  Mic,
+  Clock,
+  Music,
+  CircleAlert,
+  Send,
+  CheckCircle,
   Sparkles,
   Heart,
   ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
+// 1. Envolvemos el componente principal en Suspense
 export default function EvaluacionFamiliarPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Clock className="animate-spin text-brand-primary" size={40} />
+      </div>
+    }>
+      <FormularioEvaluacion />
+    </Suspense>
+  );
+}
+
+// 2. Todo tu código original se mueve a este nuevo componente
+function FormularioEvaluacion() {
   const searchParams = useSearchParams();
   const estudianteId = searchParams.get('estudiante') ?? '';
 
@@ -66,7 +81,7 @@ export default function EvaluacionFamiliarPage() {
             Tu participación es fundamental para el crecimiento de tu hijo/a. La maestra recibirá tu comentario muy pronto.
           </p>
           <div className="flex-center gap-2 text-brand-secondary font-black animate-pulse uppercase tracking-widest text-sm">
-             <Heart className="fill-brand-secondary" size={20} /> Comunidad Unida <Heart className="fill-brand-secondary" size={20} />
+            <Heart className="fill-brand-secondary" size={20} /> Comunidad Unida <Heart className="fill-brand-secondary" size={20} />
           </div>
         </div>
       </div>
@@ -76,11 +91,9 @@ export default function EvaluacionFamiliarPage() {
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-6">
       <div className="max-w-2xl mx-auto space-y-12">
-        
-        {/* HEADER */}
         <header className="text-center space-y-6">
           <div className="w-24 h-24 bg-brand-primary rounded-[32px] flex-center text-white mx-auto shadow-xl shadow-brand-primary/20 rotate-3 anim-flotar">
-             <Users size={50} strokeWidth={2} />
+            <Users size={50} strokeWidth={2} />
           </div>
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -92,12 +105,9 @@ export default function EvaluacionFamiliarPage() {
           </div>
         </header>
 
-        {/* FORM */}
         <main className="space-y-8 anim-fadeInUp">
           <div className="card bg-white border-2 border-white shadow-premium">
             <div className="space-y-8">
-              
-              {/* COMENTARIO */}
               <div className="space-y-4">
                 <label className="form-label flex items-center gap-2">
                   <Sparkles className="text-amber-400" size={18} /> Tu mensaje para la maestra:
@@ -110,10 +120,9 @@ export default function EvaluacionFamiliarPage() {
                 />
               </div>
 
-              {/* AUDIO */}
               <div className="space-y-4">
                 <label className="form-label flex items-center gap-2">
-                   <Mic className="text-brand-info" size={18} /> ¿Prefieres un mensaje de voz?
+                  <Mic className="text-brand-info" size={18} /> ¿Prefieres un mensaje de voz?
                 </label>
                 <div className="flex flex-col gap-4">
                   <button
@@ -134,7 +143,7 @@ export default function EvaluacionFamiliarPage() {
                     <div className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between animate-fadeInUp">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-brand-primary text-white rounded-xl flex-center">
-                           <Music size={20} />
+                          <Music size={20} />
                         </div>
                         <span className="font-bold text-slate-600 text-sm truncate max-w-[200px]">
                           {audio.name}
@@ -154,7 +163,6 @@ export default function EvaluacionFamiliarPage() {
                 </div>
               )}
 
-              {/* SUBMIT */}
               <button
                 className={`btn-burbuja w-full py-6 text-xl shadow-2xl ${enviando ? 'opacity-70 cursor-not-allowed bg-slate-400' : 'btn--primario active:scale-[0.98]'}`}
                 onClick={handleEnviar}
@@ -168,17 +176,15 @@ export default function EvaluacionFamiliarPage() {
                   </>
                 )}
               </button>
-
             </div>
           </div>
-          
+
           <footer className="text-center">
-             <Link href="/login" className="text-slate-400 font-black uppercase tracking-widest text-xs hover:text-brand-primary transition-colors flex items-center justify-center gap-2">
-                <ChevronLeft size={16} /> Volver al Inicio
-             </Link>
+            <Link href="/login" className="text-slate-400 font-black uppercase tracking-widest text-xs hover:text-brand-primary transition-colors flex items-center justify-center gap-2">
+              <ChevronLeft size={16} /> Volver al Inicio
+            </Link>
           </footer>
         </main>
-
       </div>
     </div>
   );

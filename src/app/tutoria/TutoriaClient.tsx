@@ -16,7 +16,8 @@ import {
   Users,
   MessageSquare,
   Search,
-  CheckCheck
+  CheckCheck,
+  ExternalLink
 } from 'lucide-react';
 
 type Conversacion = {
