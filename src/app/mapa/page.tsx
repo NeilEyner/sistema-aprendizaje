@@ -226,6 +226,9 @@ export default async function MapaPage({
                    <Link href={`/mapa/${temaSlug}/juegos`} className="inline-flex items-center gap-3 bg-white text-brand-accent px-8 py-4 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl">
                       <Star size={24} className="fill-brand-accent" /> ¡A Jugar! <ArrowRight />
                    </Link>
+                   <a href="/evaluacion-fracciones.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white/20 border-2 border-white text-white px-8 py-4 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl mt-4">
+                      <GraduationCap size={24} /> Evaluación <ArrowRight />
+                   </a>
                 </div>
              </div>
              {/* Decoración */}
