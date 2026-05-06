@@ -32,7 +32,8 @@ import {
   Send,
   LineChart,
   Activity,
-  Mic
+  Mic,
+  Gamepad2
 } from 'lucide-react';
 
 type Estudiante = {
@@ -115,7 +116,7 @@ type Props = {
   idioma: Idioma;
 };
 
-type Tab = 'estudiantes' | 'seguimiento' | 'portafolios' | 'valoracion' | 'tareas' | 'nuevo';
+type Tab = 'estudiantes' | 'seguimiento' | 'portafolios' | 'valoracion' | 'tareas' | 'nuevo' | 'evaluacion';
 
 const MOMENTO_ICON: Record<string, any> = {
   PRACTICA: Sprout,
@@ -251,6 +252,7 @@ export default function MaestroClient({
           { id: 'valoracion', labelKey: 'maestro_tab_muro', label: 'Foro', icon: MessageCircle, color: 'text-brand-info' },
           { id: 'tareas', labelKey: 'maestro_tab_config', label: 'Configurar', icon: LayoutDashboard, color: 'text-brand-success' },
           { id: 'nuevo', labelKey: 'maestro_tab_nuevo', label: 'Registrar', icon: Plus, color: 'text-slate-400' },
+          { id: 'evaluacion', labelKey: 'maestro_tab_evaluacion', label: '🎮 Juego', icon: Gamepad2, color: 'text-purple-500' },
         ].map((tabItem) => (
           <button
             key={tabItem.id}
@@ -568,6 +570,10 @@ export default function MaestroClient({
           <ContenidosManager temas={temas} contenidos={contenidos} setContenidos={setContenidos} setError={setError} setExito={setExito} />
         )}
 
+        {tab === 'evaluacion' && (
+          <EvaluacionJuegoPanel />
+        )}
+
         {tab === 'nuevo' && (
           <div className="card p-10 max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
@@ -636,6 +642,99 @@ export default function MaestroClient({
         )}
 
       </main>
+    </div>
+  );
+}
+
+function EvaluacionJuegoPanel() {
+  const [resultados, setResultados] = useState<any[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/evaluacion-juego', {
+      headers: { 'x-usuario': 'maestra.rosa' },
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.resultados) setResultados(d.resultados);
+        else setError('No se pudieron cargar los resultados.');
+      })
+      .catch(() => setError('Error de conexión.'))
+      .finally(() => setCargando(false));
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+          <Gamepad2 size={32} className="text-purple-500" /> Resultados — Desafío de la Cosecha
+        </h2>
+        <a
+          href="/evaluacion-fracciones.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-burbuja btn--secundario flex items-center gap-2 text-sm py-2 px-4"
+        >
+          <ExternalLink size={16} /> Abrir Juego
+        </a>
+      </div>
+
+      <div className="card p-4 bg-purple-50 border border-purple-200 rounded-2xl text-sm text-purple-700 font-semibold">
+        📋 Comparte este enlace con tus estudiantes:{' '}
+        <code className="bg-white px-2 py-1 rounded-lg text-purple-800 font-mono text-xs">
+          {typeof window !== 'undefined' ? window.location.origin : ''}/evaluacion-fracciones.html
+        </code>
+      </div>
+
+      {cargando && (
+        <div className="text-center py-20 text-slate-400 font-bold">Cargando resultados... ⏳</div>
+      )}
+      {error && (
+        <div className="text-center py-10 text-rose-500 font-bold">{error}</div>
+      )}
+      {!cargando && !error && resultados.length === 0 && (
+        <div className="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
+          <p className="text-slate-400 font-bold uppercase tracking-widest">Aún no hay resultados del juego</p>
+          <p className="text-slate-400 text-sm mt-2">Los resultados aparecerán aquí cuando los estudiantes terminen el juego.</p>
+        </div>
+      )}
+      {!cargando && resultados.length > 0 && (
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-purple-600 text-white">
+                <th className="p-4 text-left font-black">Estudiante</th>
+                <th className="p-4 text-left font-black">Usuario</th>
+                <th className="p-4 text-center font-black">Nota</th>
+                <th className="p-4 text-center font-black">Correctas</th>
+                <th className="p-4 text-center font-black">Fecha</th>
+                <th className="p-4 text-center font-black">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {resultados.map((r, i) => (
+                <tr key={r.id} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                  <td className="p-4 font-bold text-slate-800">{r.estudiante}</td>
+                  <td className="p-4 text-slate-500 font-mono text-xs">{r.usuario}</td>
+                  <td className="p-4 text-center">
+                    <span className={`font-black text-lg ${Number(r.nota) >= 80 ? 'text-emerald-600' : Number(r.nota) >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                      {r.nota}/100
+                    </span>
+                  </td>
+                  <td className="p-4 text-center text-slate-600 font-semibold">{r.correctas}/{r.total}</td>
+                  <td className="p-4 text-center text-slate-400 text-xs">{r.fecha}</td>
+                  <td className="p-4 text-center">
+                    <span className={`px-3 py-1 rounded-full text-xs font-black ${r.estado.includes('Aprobado') ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600'}`}>
+                      {r.estado}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
