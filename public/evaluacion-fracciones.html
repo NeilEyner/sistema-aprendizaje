@@ -333,16 +333,16 @@
     <div class="estrellas">⭐⭐⭐</div>
 
     <div class="input-wrap">
-      <label>👤 Tu nombre de usuario</label>
+      <label>👤 Selecciona tu nombre</label>
       <select id="sel-usuario">
-        <option value="">— Selecciona —</option>
-        <option value="lucia.flores">lucia.flores (Lucía)</option>
-        <option value="mario.choque">mario.choque (Mario)</option>
+        <option value="">⏳ Cargando estudiantes...</option>
       </select>
     </div>
-
-    <p style="font-size:13px;color:#999;margin-bottom:16px;">¿Eres otro estudiante? Escribe tu usuario:</p>
-    <div class="input-wrap">
+    <div id="carga-error" style="display:none;font-size:13px;color:#C0392B;margin:-8px 0 12px;font-weight:700;">
+      ⚠️ No se pudo cargar la lista. Escribe tu usuario abajo.
+    </div>
+    <div class="input-wrap" id="wrap-manual" style="display:none;">
+      <label>✏️ O escribe tu usuario manualmente</label>
       <input type="text" id="inp-usuario" placeholder="usuario (ej: juan.quispe)" />
     </div>
 
@@ -531,6 +531,60 @@ const PREGUNTAS = [
 ];
 
 // ═══════════════════════════════════════════════════════
+// CARGAR ESTUDIANTES DESDE EL SISTEMA
+// ═══════════════════════════════════════════════════════
+async function cargarEstudiantes() {
+  const sel = document.getElementById("sel-usuario");
+  try {
+    const res = await fetch("/api/estudiantes-juego");
+    const data = await res.json();
+    const estudiantes = data.estudiantes || [];
+
+    sel.innerHTML = '<option value="">— Elige tu nombre —</option>';
+
+    if (estudiantes.length === 0) {
+      sel.innerHTML = '<option value="">— Sin estudiantes registrados —</option>';
+      mostrarManual();
+      return;
+    }
+
+    estudiantes.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.usuario;
+      opt.textContent = e.nombre + "  (" + e.usuario + ")";
+      sel.appendChild(opt);
+    });
+
+    // Opción para ingresar manualmente al final
+    const sep = document.createElement("option");
+    sep.disabled = true;
+    sep.textContent = "──────────────";
+    sel.appendChild(sep);
+    const manual = document.createElement("option");
+    manual.value = "__manual__";
+    manual.textContent = "✏️ Escribir usuario manualmente";
+    sel.appendChild(manual);
+
+    sel.addEventListener("change", () => {
+      if (sel.value === "__manual__") mostrarManual();
+      else document.getElementById("wrap-manual").style.display = "none";
+    });
+
+  } catch (e) {
+    sel.innerHTML = '<option value="">— Error al cargar —</option>';
+    document.getElementById("carga-error").style.display = "block";
+    mostrarManual();
+  }
+}
+
+function mostrarManual() {
+  document.getElementById("wrap-manual").style.display = "block";
+}
+
+// Cargar al iniciar la página
+window.addEventListener("DOMContentLoaded", cargarEstudiantes);
+
+// ═══════════════════════════════════════════════════════
 // ESTADO
 // ═══════════════════════════════════════════════════════
 let estado = {
@@ -548,14 +602,19 @@ let estado = {
 // ═══════════════════════════════════════════════════════
 function iniciarJuego() {
   const sel = document.getElementById("sel-usuario").value;
-  const inp = document.getElementById("inp-usuario").value.trim();
-  const usuario = sel || inp;
-  if (!usuario) { alert("Por favor selecciona o escribe tu usuario."); return; }
+  const inp = document.getElementById("inp-usuario") ? document.getElementById("inp-usuario").value.trim() : "";
+  const usuario = (sel && sel !== "__manual__") ? sel : inp;
+  if (!usuario) { alert("Por favor selecciona o escribe tu nombre."); return; }
+  // Obtener nombre legible del selector
+  const selEl = document.getElementById("sel-usuario");
+  const textoOpcion = selEl.options[selEl.selectedIndex]?.text || "";
+  const nombreMostrar = textoOpcion.includes("(") ? textoOpcion.split("(")[0].trim() : usuario;
+  document.getElementById("nombre-display").textContent = "— " + nombreMostrar;
   estado.usuario = usuario;
   estado.indice = 0;
   estado.puntaje = 0;
   estado.respuestas = [];
-  document.getElementById("nombre-display").textContent = "— " + usuario;
+
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("pantalla-juego").classList.remove("hidden");
   renderPregunta();
@@ -922,7 +981,10 @@ function reiniciar() {
   document.getElementById("pantalla-final").classList.add("hidden");
   document.getElementById("pantalla-inicio").classList.remove("hidden");
   document.getElementById("sel-usuario").value = "";
-  document.getElementById("inp-usuario").value = "";
+  const inp = document.getElementById("inp-usuario");
+  if (inp) inp.value = "";
+  // Recargar lista por si se registraron nuevos estudiantes
+  cargarEstudiantes();
 }
 </script>
 </body>
