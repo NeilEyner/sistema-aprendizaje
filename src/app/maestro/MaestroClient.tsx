@@ -252,7 +252,7 @@ export default function MaestroClient({
           { id: 'valoracion', labelKey: 'maestro_tab_muro', label: 'Foro', icon: MessageCircle, color: 'text-brand-info' },
           { id: 'tareas', labelKey: 'maestro_tab_config', label: 'Configurar', icon: LayoutDashboard, color: 'text-brand-success' },
           { id: 'nuevo', labelKey: 'maestro_tab_nuevo', label: 'Registrar', icon: Plus, color: 'text-slate-400' },
-          { id: 'evaluacion', labelKey: 'maestro_tab_evaluacion', label: '🎮 Juego', icon: Gamepad2, color: 'text-purple-500' },
+          { id: 'evaluacion', labelKey: 'maestro_tab_evaluacion', label: 'Evaluación', icon: Gamepad2, color: 'text-purple-500' },
         ].map((tabItem) => (
           <button
             key={tabItem.id}
@@ -668,7 +668,7 @@ function EvaluacionJuegoPanel() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-          <Gamepad2 size={32} className="text-purple-500" /> Resultados — Desafío de la Cosecha
+          <Gamepad2 size={32} className="text-purple-500" /> Evaluación — Desafío de la Cosecha
         </h2>
         <a
           href="/evaluacion-fracciones.html"
