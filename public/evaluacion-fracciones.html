@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desafío de la Cosecha — Fracciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tierra:    #7C3F0B;
+    --cosecha:   #E8A020;
+    --verde:     #2D7A3A;
+    --verde2:    #4CAF50;
+    --cielo:     #1A6B9A;
+    --sol:       #F5C842;
+    --crema:     #FFF8EC;
+    --rojo:      #C0392B;
+    --morado:    #6C3483;
+    --bg:        #F0E6D0;
+    --card:      #FFFDF7;
+    --sombra:    rgba(124,63,11,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SKY + MOUNTAIN BG ── */
+  .sky {
+    position: fixed; inset: 0; z-index: 0;
+    background: linear-gradient(180deg, #87CEEB 0%, #C8E8FF 40%, #F0E6D0 100%);
+  }
+  .mountain {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1;
+    height: 220px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220'%3E%3Cpolygon points='0,220 200,60 400,140 600,20 800,120 1000,50 1200,140 1440,80 1440,220' fill='%234a7c3f' opacity='0.6'/%3E%3Cpolygon points='0,220 150,100 350,160 550,70 750,150 950,90 1150,160 1440,100 1440,220' fill='%232D7A3A'/%3E%3C/svg%3E") no-repeat bottom;
+    background-size: cover;
+  }
+
+  /* ── MAIN WRAPPER ── */
+  #app {
+    position: relative; z-index: 10;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--tierra), #A0522D);
+    border-radius: 20px;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 20px var(--sombra);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .header h1 {
+    font-family: 'Fredoka One', cursive;
+    color: var(--sol);
+    font-size: clamp(18px, 4vw, 26px);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    line-height: 1.1;
+  }
+  .header h1 span { color: #fff; font-size: 0.7em; display: block; }
+  .score-badge {
+    background: var(--sol);
+    color: var(--tierra);
+    font-size: 20px; font-weight: 800;
+    padding: 8px 18px;
+    border-radius: 40px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    white-space: nowrap;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: rgba(255,255,255,0.5);
+    border-radius: 20px;
+    height: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--verde2), var(--sol));
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 8px 32px var(--sombra);
+    border: 3px solid rgba(255,255,255,0.8);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, var(--cosecha), var(--verde2), var(--cielo));
+  }
+
+  .fase-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .fase-practica { background: #E8F5E9; color: var(--verde); }
+  .fase-produccion { background: #FFF3E0; color: var(--tierra); }
+
+  .pregunta-num {
+    font-size: 12px; font-weight: 700; color: #999;
+    margin-bottom: 6px;
+  }
+  .pregunta-texto {
+    font-size: clamp(15px, 3.5vw, 19px);
+    font-weight: 700; color: #333;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+
+  /* ── VISUAL FRACTION ── */
+  .fraccion-visual {
+    display: flex; justify-content: center; align-items: center;
+    gap: 4px; margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .pieza {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    border: 3px solid rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    user-select: none;
+    position: relative;
+  }
+  .pieza:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .pieza.selected {
+    border-color: var(--cielo) !important;
+    box-shadow: 0 0 0 4px rgba(26,107,154,0.4), 0 4px 12px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+  }
+  .pieza.locked { cursor: default; }
+  .pieza.locked:hover { transform: none; }
+
+  /* ── OPCIONES MCQ ── */
+  .opciones {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .opcion {
+    background: #f5f5f5;
+    border: 3px solid #ddd;
+    border-radius: 16px;
+    padding: 16px 12px;
+    font-size: clamp(22px, 5vw, 32px);
+    font-family: 'Fredoka One', cursive;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--tierra);
+    font-weight: 700;
+  }
+  .opcion:hover { background: #eef; border-color: var(--cielo); transform: translateY(-2px); }
+  .opcion.correcto { background: #E8F5E9; border-color: var(--verde); color: var(--verde); }
+  .opcion.incorrecto { background: #FFEBEE; border-color: var(--rojo); color: var(--rojo); }
+  .opcion.disabled { pointer-events: none; opacity: 0.6; }
+
+  /* ── REPARTO VISUAL ── */
+  .reparto-grid {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    margin: 20px 0;
+  }
+  .persona-slot {
+    background: #f0f0f0;
+    border: 3px dashed #ccc;
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+    min-width: 90px; flex: 1;
+    transition: all 0.2s;
+  }
+  .persona-slot.activo {
+    background: var(--crema);
+    border-color: var(--cosecha);
+    cursor: pointer;
+  }
+  .persona-slot.activo:hover { background: #FFF3DC; }
+  .persona-slot.lleno { background: #E8F5E9; border-color: var(--verde); border-style: solid; }
+  .persona-slot .persona-emoji { font-size: 32px; margin-bottom: 4px; }
+  .persona-slot .persona-nombre { font-size: 11px; font-weight: 700; color: #666; }
+  .persona-slot .fraccion-asignada { font-size: 22px; font-weight: 800; color: var(--verde); font-family: 'Fredoka One', cursive; }
+
+  .item-pool {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .item-draggable {
+    font-size: 32px;
+    padding: 10px;
+    background: var(--crema);
+    border: 3px solid var(--cosecha);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .item-draggable:hover { transform: scale(1.12); background: #FFF0C8; }
+  .item-draggable.usado { opacity: 0.25; pointer-events: none; }
+
+  /* ── BTN ── */
+  .btn {
+    display: block; width: 100%;
+    padding: 16px;
+    border: none; border-radius: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--verde), #3e9e46);
+    color: white;
+    box-shadow: 0 5px 0 #1a5c20, 0 6px 12px rgba(0,0,0,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #1a5c20, 0 8px 16px rgba(0,0,0,0.2); }
+  .btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 #1a5c20; }
+  .btn-tierra {
+    background: linear-gradient(135deg, var(--tierra), #9e5225);
+    color: var(--sol);
+    box-shadow: 0 5px 0 #4a2008;
+  }
+  .btn-tierra:hover { transform: translateY(-2px); }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin-top: 14px;
+    font-weight: 700; font-size: 17px;
+    text-align: center;
+    animation: popIn 0.3s ease;
+  }
+  .feedback.ok { background: #E8F5E9; color: var(--verde); border: 2px solid var(--verde); }
+  .feedback.err { background: #FFEBEE; color: var(--rojo); border: 2px solid var(--rojo); }
+  @keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── PANTALLA DE INICIO ── */
+  #pantalla-inicio { text-align: center; padding: 40px 20px; }
+  #pantalla-inicio .logo { font-size: 80px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  #pantalla-inicio h2 { font-family:'Fredoka One',cursive; font-size: clamp(24px,6vw,36px); color: var(--tierra); margin-bottom: 8px; }
+  #pantalla-inicio p { color: #666; font-size: 15px; margin-bottom: 6px; }
+  .input-wrap { margin: 20px 0; }
+  .input-wrap label { font-weight: 700; color: var(--tierra); display: block; margin-bottom: 6px; }
+  .input-wrap select, .input-wrap input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 3px solid #ddd; border-radius: 14px;
+    font-family: 'Nunito',sans-serif; font-size: 16px;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-wrap select:focus, .input-wrap input:focus { border-color: var(--cosecha); }
+  .estrellas { font-size: 32px; margin: 10px 0; }
+
+  /* ── PANTALLA FINAL ── */
+  #pantalla-final { text-align: center; padding: 30px 20px; }
+  .nota-grande {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(64px, 15vw, 96px);
+    line-height: 1;
+    margin: 20px 0;
+  }
+  .nota-grande.excelente { color: var(--verde); }
+  .nota-grande.bien { color: var(--cosecha); }
+  .nota-grande.refuerzo { color: var(--rojo); }
+  .medalla { font-size: 72px; animation: spin 0.8s ease; }
+  @keyframes spin { 0%{transform:rotate(-20deg) scale(0)} 60%{transform:rotate(10deg) scale(1.2)} 100%{transform:rotate(0) scale(1)} }
+  .resultado-texto { font-size: 22px; font-weight: 800; margin: 10px 0; }
+  .resumen-tabla {
+    background: #f9f9f9; border-radius: 16px;
+    padding: 16px; margin: 20px 0; text-align: left;
+    font-size: 14px; color: #555;
+  }
+  .resumen-tabla .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
+  .resumen-tabla .row:last-child { border-bottom: none; }
+  .resumen-tabla .label { font-weight: 700; color: #333; }
+  .enviando { font-size: 14px; color: #999; margin-top: 12px; }
+  .enviado-ok { font-size: 14px; color: var(--verde); font-weight: 700; margin-top: 8px; }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="mountain"></div>
+
+<div id="app">
+
+  <!-- ══════════════ PANTALLA INICIO ══════════════ -->
+  <div id="pantalla-inicio" class="card">
+    <div class="logo">🌾</div>
+    <h2>Desafío de la Cosecha</h2>
+    <p style="font-weight:700;color:var(--cielo);font-size:17px;">¡Aprende Fracciones jugando!</p>
+    <p>Ayuda a la comunidad a repartir su cosecha de manera justa.</p>
+    <div class="estrellas">⭐⭐⭐</div>
+
+    <div class="input-wrap">
+      <label>👤 Tu nombre de usuario</label>
+      <select id="sel-usuario">
+        <option value="">— Selecciona —</option>
+        <option value="lucia.flores">lucia.flores (Lucía)</option>
+        <option value="mario.choque">mario.choque (Mario)</option>
+      </select>
+    </div>
+
+    <p style="font-size:13px;color:#999;margin-bottom:16px;">¿Eres otro estudiante? Escribe tu usuario:</p>
+    <div class="input-wrap">
+      <input type="text" id="inp-usuario" placeholder="usuario (ej: juan.quispe)" />
+    </div>
+
+    <button class="btn btn-tierra" onclick="iniciarJuego()">
+      🌽 ¡Comenzar la Cosecha!
+    </button>
+  </div>
+
+  <!-- ══════════════ JUEGO ══════════════ -->
+  <div id="pantalla-juego" class="hidden">
+    <div class="header">
+      <div>
+        <div class="header h1" style="font-family:'Fredoka One',cursive;color:var(--sol);font-size:clamp(16px,4vw,24px);text-shadow:2px 2px 0 rgba(0,0,0,0.3);">
+          🌾 Desafío de la Cosecha
+          <span id="nombre-display" style="color:#fff;font-size:0.65em;font-family:'Nunito',sans-serif;font-weight:700;"></span>
+        </div>
+      </div>
+      <div class="score-badge">⭐ <span id="score-display">0</span> pts</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-fill" id="barra-progreso" style="width:0%"></div>
+    </div>
+
+    <div id="zona-pregunta"></div>
+
+    <button class="btn btn-primary hidden" id="btn-siguiente" onclick="siguientePregunta()">
+      Siguiente ➜
+    </button>
+  </div>
+
+  <!-- ══════════════ PANTALLA FINAL ══════════════ -->
+  <div id="pantalla-final" class="card hidden">
+    <div id="medalla-final" class="medalla">🏅</div>
+    <h2 style="font-family:'Fredoka One',cursive;color:var(--tierra);font-size:clamp(20px,5vw,28px);">¡Terminaste la Cosecha!</h2>
+    <div class="nota-grande" id="nota-final">0</div>
+    <div class="resultado-texto" id="resultado-texto"></div>
+    <div class="resumen-tabla" id="resumen-tabla"></div>
+    <p class="enviando" id="estado-envio">Guardando tu resultado... ⏳</p>
+    <p class="enviado-ok hidden" id="enviado-ok">✅ Resultado enviado a tu maestra.</p>
+    <button class="btn btn-tierra" onclick="reiniciar()" style="margin-top:16px;">🌱 Jugar de nuevo</button>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// BANCO DE PREGUNTAS
+// ═══════════════════════════════════════════════════════
+const PREGUNTAS = [
+
+  // ── FASE PRÁCTICA ─────────────────────────────────────
+
+  {
+    id: 1, fase: "practica",
+    tipo: "visual-seleccion",
+    emoji: "🍞",
+    titulo: "La T'ant'awawa de Mamá",
+    texto: "Mamá horneó una t'ant'awawa (pan) para su familia. Selecciona la MITAD (1/2) del pan haciendo clic en las partes correctas.",
+    piezas: [
+      { emoji: "🍞", color: "#FDEBD0", colorSel: "#E59866" },
+      { emoji: "🍞", color: "#FDEBD0", colorSel: "#E59866" },
+    ],
+    respuesta_piezas: 1, // cuántas piezas debe seleccionar
+    fraccion_correcta: "1/2",
+    puntos: 10,
+    feedback_ok: "¡Wali k'achi! ¡Muy bien! La mitad significa 1 de cada 2 partes iguales.",
+    feedback_err: "Inténtalo de nuevo. La mitad es solo UNA parte de DOS iguales.",
+  },
+
+  {
+    id: 2, fase: "practica",
+    tipo: "mcq",
+    emoji: "🌽",
+    titulo: "La Cosecha de Quinua",
+    texto: "Don Pedro cosechó esta fanega de quinua. La dividió en 4 partes iguales para sus 4 hijos. ¿Qué fracción recibe CADA hijo?",
+    imagen_piezas: ["🟨","🟨","🟨","🟨"],
+    opciones: [
+      { texto: "1/2", correcto: false },
+      { texto: "1/4", correcto: true },
+      { texto: "1/3", correcto: false },
+      { texto: "2/4", correcto: false },
+    ],
+    puntos: 10,
+    feedback_ok: "¡Muy bien! 1/4 significa una de cuatro partes iguales. ¡Jisk'a yatiqiri!",
+    feedback_err: "Cuenta bien: hay 4 hijos y 1 fanega. Cada uno recibe 1 de 4 = 1/4.",
+  },
+
+  {
+    id: 3, fase: "practica",
+    tipo: "visual-seleccion",
+    emoji: "🌿",
+    titulo: "La Parcela de Cultivo",
+    texto: "La comunidad dividió su parcela en 3 partes iguales. Don Rufino recibe UN TERCIO (1/3). Selecciona su parte.",
+    piezas: [
+      { emoji: "🌱", color: "#D5E8D4", colorSel: "#82B366" },
+      { emoji: "🌿", color: "#D5E8D4", colorSel: "#82B366" },
+      { emoji: "🌾", color: "#D5E8D4", colorSel: "#82B366" },
+    ],
+    respuesta_piezas: 1,
+    fraccion_correcta: "1/3",
+    puntos: 10,
+    feedback_ok: "¡Excelente! 1/3 es una parte de tres partes iguales. Kimsa juk'ampikiw — ¡uno de tres!",
+    feedback_err: "Un tercio (1/3) significa seleccionar UNA sola parte de las tres.",
+  },
+
+  {
+    id: 4, fase: "practica",
+    tipo: "mcq",
+    emoji: "🎂",
+    titulo: "El Pastel de la Fiesta",
+    texto: "En la fiesta del ayllu cortaron el pastel en partes iguales. ¿Qué fracción está sombreada?",
+    imagen_fraccion: { total: 4, marcadas: 3, emoji: "🎂" },
+    opciones: [
+      { texto: "1/4", correcto: false },
+      { texto: "2/4", correcto: false },
+      { texto: "3/4", correcto: true },
+      { texto: "4/4", correcto: false },
+    ],
+    puntos: 10,
+    feedback_ok: "¡Perfecto! 3 partes de 4 iguales = 3/4. ¡Wali yatichiri!",
+    feedback_err: "Cuenta las partes coloreadas (3) sobre el total (4). Es 3/4.",
+  },
+
+  {
+    id: 5, fase: "practica",
+    tipo: "mcq",
+    emoji: "🍎",
+    titulo: "Las Manzanas del Mercado",
+    texto: "Doña Carmen tiene 2 manzanas. Las divide por la mitad para sus hijos. ¿Cuántas mitades tiene en total?",
+    opciones: [
+      { texto: "2 mitades", correcto: false },
+      { texto: "4 mitades", correcto: true },
+      { texto: "3 mitades", correcto: false },
+      { texto: "6 mitades", correcto: false },
+    ],
+    puntos: 10,
+    feedback_ok: "¡Correcto! Cada manzana da 2 mitades, 2 manzanas = 4 mitades. ¡Paya paya!",
+    feedback_err: "Piensa: 1 manzana ÷ 2 = 2 mitades. ¿Y 2 manzanas? = 4 mitades.",
+  },
+
+  // ── FASE PRODUCCIÓN ───────────────────────────────────
+
+  {
+    id: 6, fase: "produccion",
+    tipo: "reparto",
+    emoji: "🌽",
+    titulo: "¡Reparto Justo en la Feria!",
+    texto: "En la Feria de Alasita, hay 1 canasta de mote para repartir en PARTES IGUALES entre 4 personas. Arrastra el mote a cada persona.",
+    personas: [
+      { nombre: "Mamá", emoji: "👩" },
+      { nombre: "Papá", emoji: "👨" },
+      { nombre: "Lucía", emoji: "👧" },
+      { nombre: "Mario", emoji: "👦" },
+    ],
+    item_emoji: "🌽",
+    total_items: 4,
+    fraccion_por_persona: "1/4",
+    puntos: 25,
+    feedback_ok: "¡Bravo! Cada persona recibe 1/4 (un cuarto). ¡Juk'a juk'ampi — partes iguales para todos!",
+    feedback_err: "Recuerda: debes dar UNA pieza a CADA persona para que sea justo.",
+  },
+
+  {
+    id: 7, fase: "produccion",
+    tipo: "reparto",
+    emoji: "🍞",
+    titulo: "Compartiendo el Pan del Ayllu",
+    texto: "La abuela preparó 3 panes para repartir en MITADES entre 6 personas de la comunidad. ¡Reparte las mitades!",
+    personas: [
+      { nombre: "Abuela", emoji: "👵" },
+      { nombre: "Tío", emoji: "👴" },
+      { nombre: "Vecina", emoji: "👩" },
+      { nombre: "Maestro", emoji: "👨‍🏫" },
+      { nombre: "Niña", emoji: "👧" },
+      { nombre: "Niño", emoji: "👦" },
+    ],
+    item_emoji: "🍞",
+    total_items: 6, // 3 panes × 2 mitades
+    fraccion_por_persona: "1/2",
+    puntos: 25,
+    feedback_ok: "¡Perfecto! Cada persona recibe 1/2 (media pieza). ¡Ch'iqta — mitad para todos!",
+    feedback_err: "Hay 6 personas y 6 mitades (3 panes × 2). Cada una recibe exactamente 1/2.",
+  },
+
+];
+
+// ═══════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════
+let estado = {
+  usuario: "",
+  indice: 0,
+  puntaje: 0,
+  respuestas: [],
+  piezasSeleccionadas: [],
+  repartoCompletado: false,
+  itemsUsados: 0,
+};
+
+// ═══════════════════════════════════════════════════════
+// INICIAR
+// ═══════════════════════════════════════════════════════
+function iniciarJuego() {
+  const sel = document.getElementById("sel-usuario").value;
+  const inp = document.getElementById("inp-usuario").value.trim();
+  const usuario = sel || inp;
+  if (!usuario) { alert("Por favor selecciona o escribe tu usuario."); return; }
+  estado.usuario = usuario;
+  estado.indice = 0;
+  estado.puntaje = 0;
+  estado.respuestas = [];
+  document.getElementById("nombre-display").textContent = "— " + usuario;
+  document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("pantalla-juego").classList.remove("hidden");
+  renderPregunta();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER PREGUNTA
+// ═══════════════════════════════════════════════════════
+function renderPregunta() {
+  const p = PREGUNTAS[estado.indice];
+  const total = PREGUNTAS.length;
+  const pct = (estado.indice / total) * 100;
+  document.getElementById("barra-progreso").style.width = pct + "%";
+  document.getElementById("score-display").textContent = estado.puntaje;
+  document.getElementById("btn-siguiente").classList.add("hidden");
+
+  const zona = document.getElementById("zona-pregunta");
+  zona.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  // Fase label
+  const faseLabel = document.createElement("div");
+  faseLabel.className = "fase-label " + (p.fase === "practica" ? "fase-practica" : "fase-produccion");
+  faseLabel.innerHTML = (p.fase === "practica" ? "🌱 Fase Práctica" : "🏗️ Fase Producción") + ` &nbsp;·&nbsp; ${estado.indice + 1} / ${total}`;
+  card.appendChild(faseLabel);
+
+  // Título
+  const titulo = document.createElement("div");
+  titulo.style.cssText = "font-family:'Fredoka One',cursive;font-size:clamp(18px,4vw,24px);color:var(--tierra);margin-bottom:8px;";
+  titulo.textContent = p.emoji + " " + p.titulo;
+  card.appendChild(titulo);
+
+  // Texto
+  const texto = document.createElement("div");
+  texto.className = "pregunta-texto";
+  texto.textContent = p.texto;
+  card.appendChild(texto);
+
+  // Contenido según tipo
+  if (p.tipo === "visual-seleccion") renderVisualSeleccion(card, p);
+  else if (p.tipo === "mcq") renderMCQ(card, p);
+  else if (p.tipo === "reparto") renderReparto(card, p);
+
+  // Feedback
+  const fb = document.createElement("div");
+  fb.className = "feedback"; fb.id = "feedback-box";
+  card.appendChild(fb);
+
+  zona.appendChild(card);
+}
+
+// ── Visual selección de piezas ──
+function renderVisualSeleccion(card, p) {
+  estado.piezasSeleccionadas = [];
+  const wrap = document.createElement("div");
+  wrap.className = "fraccion-visual";
+
+  p.piezas.forEach((pieza, i) => {
+    const div = document.createElement("div");
+    div.className = "pieza";
+    div.id = "pieza-" + i;
+    div.style.background = pieza.color;
+    div.style.borderColor = "#ccc";
+    div.innerHTML = pieza.emoji;
+    div.dataset.idx = i;
+    div.dataset.colorSel = pieza.colorSel;
+    div.dataset.colorNorm = pieza.color;
+    div.onclick = () => togglePieza(div, p);
+    wrap.appendChild(div);
+  });
+  card.appendChild(wrap);
+
+  // Indicador fracción
+  const ind = document.createElement("div");
+  ind.style.cssText = "text-align:center;font-size:13px;color:#888;margin-top:8px;";
+  ind.id = "sel-count";
+  ind.textContent = `Seleccionadas: 0 / ${p.respuesta_piezas}`;
+  card.appendChild(ind);
+
+  const btn = document.createElement("button");
+  btn.className = "btn btn-primary";
+  btn.textContent = "✅ Confirmar respuesta";
+  btn.style.marginTop = "16px";
+  btn.onclick = () => verificarVisual(p);
+  card.appendChild(btn);
+}
+
+function togglePieza(div, p) {
+  const idx = parseInt(div.dataset.idx);
+  if (div.classList.contains("locked")) return;
+  if (div.classList.contains("selected")) {
+    div.classList.remove("selected");
+    div.style.background = div.dataset.colorNorm;
+    estado.piezasSeleccionadas = estado.piezasSeleccionadas.filter(i => i !== idx);
+  } else {
+    if (estado.piezasSeleccionadas.length >= p.respuesta_piezas) return;
+    div.classList.add("selected");
+    div.style.background = div.dataset.colorSel;
+    estado.piezasSeleccionadas.push(idx);
+  }
+  document.getElementById("sel-count").textContent = `Seleccionadas: ${estado.piezasSeleccionadas.length} / ${p.respuesta_piezas}`;
+}
+
+function verificarVisual(p) {
+  const correcto = estado.piezasSeleccionadas.length === p.respuesta_piezas;
+  mostrarFeedback(correcto, p);
+  document.querySelectorAll(".pieza").forEach(d => d.classList.add("locked"));
+}
+
+// ── MCQ ──
+function renderMCQ(card, p) {
+  // Si hay imagen de fracción
+  if (p.imagen_fraccion) {
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "fraccion-visual";
+    for (let i = 0; i < p.imagen_fraccion.total; i++) {
+      const d = document.createElement("div");
+      d.className = "pieza locked";
+      d.style.background = i < p.imagen_fraccion.marcadas ? "#F5B041" : "#EEE";
+      d.style.borderColor = "#ccc";
+      d.innerHTML = i < p.imagen_fraccion.marcadas ? p.imagen_fraccion.emoji : "⬜";
+      imgWrap.appendChild(d);
+    }
+    card.appendChild(imgWrap);
+  }
+  if (p.imagen_piezas) {
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "fraccion-visual";
+    p.imagen_piezas.forEach(e => {
+      const d = document.createElement("div");
+      d.className = "pieza locked";
+      d.style.fontSize = "28px"; d.style.background = "#FFF8DC"; d.style.borderColor = "#ccc";
+      d.innerHTML = e;
+      imgWrap.appendChild(d);
+    });
+    card.appendChild(imgWrap);
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "opciones";
+  p.opciones.forEach((op, i) => {
+    const btn = document.createElement("button");
+    btn.className = "opcion";
+    btn.textContent = op.texto;
+    btn.onclick = () => {
+      document.querySelectorAll(".opcion").forEach(b => {
+        b.classList.add("disabled");
+        const idx2 = parseInt(b.dataset.idx);
+        if (p.opciones[idx2].correcto) b.classList.add("correcto");
+      });
+      if (op.correcto) btn.classList.add("correcto");
+      else btn.classList.add("incorrecto");
+      mostrarFeedback(op.correcto, p);
+    };
+    btn.dataset.idx = i;
+    grid.appendChild(btn);
+  });
+  card.appendChild(grid);
+}
+
+// ── Reparto ──
+function renderReparto(card, p) {
+  estado.repartoCompletado = false;
+  estado.itemsUsados = 0;
+
+  // Pool de items
+  const poolLabel = document.createElement("p");
+  poolLabel.style.cssText = "font-weight:700;color:#555;font-size:14px;margin-bottom:8px;text-align:center;";
+  poolLabel.textContent = `Haz clic en ${p.item_emoji} para repartir:`;
+  card.appendChild(poolLabel);
+
+  const pool = document.createElement("div");
+  pool.className = "item-pool";
+  for (let i = 0; i < p.total_items; i++) {
+    const item = document.createElement("div");
+    item.className = "item-draggable";
+    item.id = "item-" + i;
+    item.innerHTML = p.item_emoji;
+    item.dataset.idx = i;
+    item.onclick = () => asignarItem(item, p);
+    pool.appendChild(item);
+  }
+  card.appendChild(pool);
+
+  // Personas
+  const grid = document.createElement("div");
+  grid.className = "reparto-grid";
+  p.personas.forEach((persona, i) => {
+    const slot = document.createElement("div");
+    slot.className = "persona-slot activo";
+    slot.id = "slot-" + i;
+    slot.innerHTML = `<div class="persona-emoji">${persona.emoji}</div><div class="persona-nombre">${persona.nombre}</div><div class="fraccion-asignada" id="fraccion-${i}">—</div>`;
+    slot.onclick = () => {
+      // Click en persona también asigna el siguiente item disponible
+      const nextItem = document.querySelector(".item-draggable:not(.usado)");
+      if (nextItem) asignarItem(nextItem, p, i);
+    };
+    grid.appendChild(slot);
+  });
+  card.appendChild(grid);
+
+  // Contador
+  const contador = document.createElement("div");
+  contador.id = "contador-reparto";
+  contador.style.cssText = "text-align:center;font-size:13px;color:#888;margin-top:8px;";
+  contador.textContent = `Repartidos: 0 / ${p.personas.length}`;
+  card.appendChild(contador);
+}
+
+let repartoPersonaIdx = 0;
+function asignarItem(item, p, personaForzada = null) {
+  if (item.classList.contains("usado")) return;
+
+  // Encontrar próxima persona sin asignar
+  let targetIdx = personaForzada;
+  if (targetIdx === null) {
+    for (let i = 0; i < p.personas.length; i++) {
+      if (!document.getElementById("slot-" + i).classList.contains("lleno")) {
+        targetIdx = i;
+        break;
+      }
+    }
+  }
+  if (targetIdx === null) return;
+  const slot = document.getElementById("slot-" + targetIdx);
+  if (slot.classList.contains("lleno")) return;
+
+  item.classList.add("usado");
+  slot.classList.add("lleno");
+  slot.classList.remove("activo");
+  document.getElementById("fraccion-" + targetIdx).textContent = p.fraccion_por_persona;
+  estado.itemsUsados++;
+
+  // Animación
+  item.style.transform = "scale(0.5)";
+  setTimeout(() => { item.style.transform = ""; }, 200);
+
+  const repartidos = estado.itemsUsados;
+  document.getElementById("contador-reparto").textContent = `Repartidos: ${repartidos} / ${p.personas.length}`;
+
+  if (repartidos === p.personas.length) {
+    setTimeout(() => {
+      const correcto = repartidos === p.personas.length;
+      mostrarFeedback(correcto, p);
+    }, 400);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// FEEDBACK Y PUNTUACIÓN
+// ═══════════════════════════════════════════════════════
+function mostrarFeedback(correcto, p) {
+  const fb = document.getElementById("feedback-box");
+  if (correcto) {
+    estado.puntaje += p.puntos;
+    document.getElementById("score-display").textContent = estado.puntaje;
+    fb.className = "feedback ok";
+    fb.innerHTML = "✅ " + p.feedback_ok;
+    estado.respuestas.push({ id: p.id, correcto: true, puntos: p.puntos });
+  } else {
+    fb.className = "feedback err";
+    fb.innerHTML = "❌ " + p.feedback_err;
+    estado.respuestas.push({ id: p.id, correcto: false, puntos: 0 });
+  }
+  fb.style.display = "block";
+  document.getElementById("btn-siguiente").classList.remove("hidden");
+}
+
+// ═══════════════════════════════════════════════════════
+// SIGUIENTE PREGUNTA
+// ═══════════════════════════════════════════════════════
+function siguientePregunta() {
+  estado.indice++;
+  if (estado.indice >= PREGUNTAS.length) {
+    mostrarFinal();
+  } else {
+    renderPregunta();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// PANTALLA FINAL
+// ═══════════════════════════════════════════════════════
+function mostrarFinal() {
+  document.getElementById("pantalla-juego").classList.add("hidden");
+  const final = document.getElementById("pantalla-final");
+  final.classList.remove("hidden");
+
+  const nota = estado.puntaje;
+  const notaEl = document.getElementById("nota-final");
+  const medalla = document.getElementById("medalla-final");
+  const textoEl = document.getElementById("resultado-texto");
+
+  notaEl.textContent = nota + "/100";
+
+  if (nota >= 80) {
+    notaEl.className = "nota-grande excelente";
+    medalla.textContent = "🥇";
+    textoEl.innerHTML = "¡Wali k'achaki! ¡Excelente trabajo! 🎉";
+  } else if (nota >= 50) {
+    notaEl.className = "nota-grande bien";
+    medalla.textContent = "🥈";
+    textoEl.innerHTML = "¡Allinmi! ¡Buen esfuerzo! Sigue practicando. 💪";
+  } else {
+    notaEl.className = "nota-grande refuerzo";
+    medalla.textContent = "🌱";
+    textoEl.innerHTML = "¡Sigue practicando, puedes mejorar! ¡Ánimo! 🌟";
+  }
+
+  // Resumen
+  const correctas = estado.respuestas.filter(r => r.correcto).length;
+  const tabla = document.getElementById("resumen-tabla");
+  tabla.innerHTML = `
+    <div class="row"><span class="label">👤 Estudiante</span><span>${estado.usuario}</span></div>
+    <div class="row"><span class="label">📅 Fecha</span><span>${new Date().toLocaleDateString('es-BO')}</span></div>
+    <div class="row"><span class="label">✅ Respuestas correctas</span><span>${correctas} de ${PREGUNTAS.length}</span></div>
+    <div class="row"><span class="label">⭐ Puntaje final</span><span><strong>${nota}/100</strong></span></div>
+  `;
+
+  // Enviar al sistema
+  enviarResultado(nota, correctas);
+}
+
+// ═══════════════════════════════════════════════════════
+// ENVIAR RESULTADO AL SISTEMA AVA
+// ═══════════════════════════════════════════════════════
+async function enviarResultado(nota, correctas) {
+  const payload = {
+    usuario: estado.usuario,
+    nota: nota,
+    correctas: correctas,
+    total: PREGUNTAS.length,
+    fecha: new Date().toISOString(),
+    detalle: estado.respuestas,
+  };
+
+  try {
+    // Intentar enviar al endpoint del sistema AVA/EVA
+    const res = await fetch("/api/evaluacion-juego", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      document.getElementById("estado-envio").classList.add("hidden");
+      document.getElementById("enviado-ok").classList.remove("hidden");
+    } else {
+      throw new Error("No OK");
+    }
+  } catch (e) {
+    // Si falla (juego abierto sin el backend), solo mostrar localmente
+    document.getElementById("estado-envio").textContent = "ℹ️ Resultado guardado localmente. Muéstraselo a tu maestra.";
+    // Guardar en localStorage como respaldo
+    const historial = JSON.parse(localStorage.getItem("evaluaciones_fracciones") || "[]");
+    historial.push(payload);
+    localStorage.setItem("evaluaciones_fracciones", JSON.stringify(historial));
+  }
+}
+
+function reiniciar() {
+  document.getElementById("pantalla-final").classList.add("hidden");
+  document.getElementById("pantalla-inicio").classList.remove("hidden");
+  document.getElementById("sel-usuario").value = "";
+  document.getElementById("inp-usuario").value = "";
+}
+</script>
+</body>
+</html>
