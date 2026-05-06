@@ -210,6 +210,29 @@ export default async function MapaPage({
         </div>
       </main>
 
+      {/* EVALUACION BUTTON */}
+      <div className="px-6 pb-4 relative z-20">
+        <div className="max-w-3xl mx-auto">
+          <a
+            href="/evaluacion-fracciones.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between gap-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white px-8 py-5 rounded-[28px] font-black text-xl shadow-xl shadow-purple-500/30 hover:scale-[1.02] active:scale-95 transition-all w-full"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex-center backdrop-blur-sm">
+                <GraduationCap size={28} />
+              </div>
+              <div className="text-left">
+                <div className="text-xl font-black">Evaluación</div>
+                <div className="text-white/70 text-sm font-semibold">Desafío de la Cosecha — Fracciones</div>
+              </div>
+            </div>
+            <ArrowRight size={28} className="shrink-0 opacity-80" />
+          </a>
+        </div>
+      </div>
+
       {/* ── GAMES SECTION ── */}
       <section className="px-6 py-12 bg-slate-50 relative z-20">
         <div className="max-w-4xl mx-auto">
@@ -226,9 +249,6 @@ export default async function MapaPage({
                    <Link href={`/mapa/${temaSlug}/juegos`} className="inline-flex items-center gap-3 bg-white text-brand-accent px-8 py-4 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl">
                       <Star size={24} className="fill-brand-accent" /> ¡A Jugar! <ArrowRight />
                    </Link>
-                   <a href="/evaluacion-fracciones.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-white/20 border-2 border-white text-white px-8 py-4 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl mt-4">
-                      <GraduationCap size={24} /> Evaluación <ArrowRight />
-                   </a>
                 </div>
              </div>
              {/* Decoración */}
